@@ -1,0 +1,52 @@
+package org.o7planning.dao.impl;
+
+import java.util.List;
+
+import org.hibernate.Criteria;
+import org.hibernate.Query;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.o7planning.dao.DepartmentDAO;
+import org.o7planning.entity.Department;
+import org.springframework.transaction.annotation.Transactional;
+
+@Transactional
+public class DepartmentDAOImpl implements DepartmentDAO {
+	private SessionFactory sessionFactory;
+
+	public void setSessionFactory(SessionFactory sessionFactory) {
+		this.sessionFactory = sessionFactory;
+	}
+
+	@SuppressWarnings("unchecked")
+	public List<Department> listDepartment() {
+		Criteria criteria = sessionFactory.getCurrentSession().createCriteria(Department.class);
+		/*Session session = this.sessionFactory.getCurrentSession();
+		List<Department> list = session.createSQLQuery("select * from simplehr.Department").list();
+		System.out.println(list);*/
+		return criteria.list();
+	}
+
+	public Integer getMaxDeptId() {
+	      Session session = this.sessionFactory.getCurrentSession();
+	      String sql = "Select max(d.deptId) from Department d ";
+	      Query query = session.createQuery(sql);
+	      Integer maxDeptId = (Integer) query.uniqueResult();
+	      if (maxDeptId == null) {
+	          return 0;
+	      }
+	      return maxDeptId;
+	  }
+	 
+	  public void createDepartment(String name, String location) {
+	      Integer deptId = getMaxDeptId() + 1;
+	      Department dept = new Department();
+	      dept.setDeptId(deptId);
+	      dept.setDeptNo("D" + deptId);
+	      dept.setDeptName(name);
+	      dept.setLocation(location);
+	      Session session = this.sessionFactory.getCurrentSession();
+	      session.persist(dept);
+	  }
+
+}
